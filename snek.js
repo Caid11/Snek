@@ -1,18 +1,5 @@
-function findScalingFactor() {
-    // Make the snake 25 pixels big. Then, make it smaller or larger to fit the screen bigger.
-    var initialSize = 25;
-    var horizontalLeftOver = view.size.width % 25;
-    var verticalLeftOver = view.size.height % 25;
-    var horizontalWidth = Math.floor(view.size.width / 25);
-    var verticalHeight = Math.floor(view.size.height / 25);
-    var horizontalAddAmount = horizontalLeftOver / horizontalWidth;
-    var verticalAddAmount = verticalLeftOver / verticalHeight;
-    var addAmount = Math.round((horizontalAddAmount + verticalAddAmount) / 2);
-    return addAmount + initialSize;
-}
-
 // Scaling factor for the game board
-var scalingFactor = findScalingFactor();
+var scalingFactor = 25;
 
 // The current direction of travel for the snake.
 var currentDirection = 'right';
@@ -109,18 +96,18 @@ var id = setInterval(function() {
             body[i].xPos = newXPos;
             body[i].yPos = newYPos;
             var rect = new Path.Rectangle(new Point(body[i].xPos * scalingFactor, body[i].yPos * scalingFactor), 25);
-            rect.fillColor = '#d3dae5';
+            rect.fillColor = '#5faf60';
         }
         if (body.length > 1) {
             body[1].xPos = prevHeadX;
             body[1].yPos = prevHeadY;
             var rect = new Path.Rectangle(new Point(body[1].xPos * scalingFactor, body[1].yPos * scalingFactor), 25);
-            rect.fillColor = '#d3dae5';
+            rect.fillColor = '#5faf60';
 
         }
 
         var rect = new Path.Rectangle(new Point(body[0].xPos * scalingFactor, body[0].yPos * scalingFactor), 25);
-        rect.fillColor = '#d3dae5';
+        rect.fillColor = '#5faf60';
 
         // Draw the current food.
         var food = new Path.Rectangle(new Point(foodXPosition * scalingFactor, foodYPosition * scalingFactor), 25);
