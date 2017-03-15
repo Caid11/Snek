@@ -8,7 +8,7 @@ var currentDirection = 'right';
 var gameSpeed = 1;
 
 // The game's "base speed"
-var BASE_SPEED = 1000;
+var BASE_SPEED = 250;
 
 // Whether or not the game is currently running.
 var gameStarted = false;
@@ -21,8 +21,8 @@ function getFoodLocation() {
     var maxPoint = new Point(view.size.width, view.size.height);
     var randomPoint = Point.random();
     var foodPoint = maxPoint * randomPoint;
-    foodXPosition = Math.round(foodPoint.x / scalingFactor);
-    foodYPosition = Math.round(foodPoint.y / scalingFactor);
+    foodXPosition = Math.floor(foodPoint.x / scalingFactor);
+    foodYPosition = Math.floor(foodPoint.y / scalingFactor);
 }
 getFoodLocation();
 
@@ -115,12 +115,24 @@ var id = setInterval(function() {
     }
 }, BASE_SPEED);
 
+var opposites = {
+    'left': 'right',
+    'right': 'left',
+    'up': 'down',
+    'down': 'up'
+};
+
+function isOppositeDirection(newDirection, currentDirection) {
+    return newDirection === opposites[currentDirection];
+}
+
 /**
  * Update the snake head's direction based on the key press.
  */
 tool.onKeyDown = function(event) {
-    if (event.key === 'up' || event.key === 'down' ||
-          event.key === 'left' || event.key === 'right') {
+    if ((event.key === 'up' || event.key === 'down' ||
+          event.key === 'left' || event.key === 'right') &&
+          !isOppositeDirection(event.key, currentDirection)) {
         currentDirection = event.key;
     } else if (event.key === 'space') {
         if (!gameStarted) {
