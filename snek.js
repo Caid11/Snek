@@ -4,9 +4,6 @@ var scalingFactor = 25;
 // The current direction of travel for the snake.
 var currentDirection = 'right';
 
-// The speed at which the game is played (increases as the player eats more food).
-var gameSpeed = 1;
-
 // The game's "base speed"
 var baseSpeed = 250;
 
@@ -24,6 +21,20 @@ var gameInterval = null;
 // Whether or not the game is currently running.
 var gameStarted = false;
 
+var inDeathScreen = false;
+
+var score = 0;
+
+function setScoreText(newScore) {
+    var scorePoint = new Point(view.size.width - 14, 34);
+    var scoreText = new PointText(scorePoint);
+    scoreText.fontSize = 24;
+    scoreText.justification = 'right';
+    scoreText.fillColor = '#d3dae5';
+    scoreText.fontWeight = 'bold';
+    scoreText.content = newScore;
+}
+
 function getFoodLocation() {
     var maxPoint = new Point(view.size.width, view.size.height);
     var randomPoint = Point.random();
@@ -33,7 +44,57 @@ function getFoodLocation() {
 }
 getFoodLocation();
 
-var body = [{'xPos': 0, 'yPos': 0}];
+function showTitleText() {
+    var midPoint = new Point(view.size.width / 2, view.size.height / 2);
+    var titleText = new PointText(midPoint);
+    titleText.justification = 'center';
+    titleText.fontSize = 96;
+    titleText.fontWeight = 'bold';
+    titleText.content = 'Feed Snek';
+    titleText.fillColor = '#d3dae5';
+    while (!titleText.isInside(view.bounds)) {
+        titleText.fontSize -= 10;
+    }
+
+    var instructionPoint = midPoint + new Point(0, titleText.fontSize / 2);
+    var instructionText = new PointText(instructionPoint);
+    instructionText.justification = 'center';
+    instructionText.fontSize = titleText.fontSize / 2;
+    instructionText.content = 'Press space to play';
+    instructionText.fillColor = '#d3dae5';
+}
+showTitleText();
+
+function showDeathScreen(score) {
+    var midPoint = new Point(view.size.width / 2, view.size.height / 2);
+    var mainText = new PointText(midPoint);
+    mainText.justification = 'center';
+    mainText.fontSize = 96;
+    mainText.fontWeight = 'bold';
+    mainText.content = 'Snek is Kill';
+    mainText.fillColor = '#d3dae5';
+    while (!mainText.isInside(view.bounds)) {
+        mainText.fontSize -= 10;
+    }
+
+    var subPoint = midPoint + new Point(0, mainText.fontSize / 2);
+    var subText = new PointText(subPoint);
+    subText.justification = 'center';
+    subText.fontSize = mainText.fontSize / 2;
+    if (score > 1 || score === 0) {
+        subText.content = 'You scored ' + score + ' points. Play again?';
+    } else {
+        subText.content = 'You scored ' + score + ' point. Play again?';
+    }
+    subText.fillColor = '#d3dae5';
+    while (!subText.isInside(view.bounds)) {
+        subText.fontSize -= 10;
+    }
+
+}
+
+
+var body = [{'xPos': 1, 'yPos': 1}];
 
 function addBodySegment() {
     var newSegment = {'xPos': 0, 'yPos': 0};
@@ -93,6 +154,7 @@ function gameLoop() {
     if (body[0].xPos === foodXPosition && body[0].yPos === foodYPosition) {
         getFoodLocation();
         addBodySegment();
+        score++;
         if (baseSpeed > 100) {
             clearInterval(gameInterval);
             baseSpeed -= 10;
@@ -136,6 +198,9 @@ function gameLoop() {
     // Draw the current food.
     var food = new Path.Rectangle(new Point(foodXPosition * scalingFactor, foodYPosition * scalingFactor), 25);
     food.fillColor = '#d3dae5';
+
+    // Update the score.
+    setScoreText(score);
 }
 
 function endGame() {
@@ -153,6 +218,11 @@ function endGame() {
     body[0].yPos = 1;
     body.splice(1);
     getFoodLocation();
+
+    // Display the title text.
+    showDeathScreen(score);
+
+    score = 0;
 
     gameStarted = false;
 }
