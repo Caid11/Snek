@@ -255,7 +255,8 @@ function isOppositeDirection(newDirection, currentDirection) {
 tool.onKeyDown = function(event) {
     if ((event.key === 'up' || event.key === 'down' ||
           event.key === 'left' || event.key === 'right') &&
-          !isOppositeDirection(event.key, currentDirection)) {
+          !isOppositeDirection(event.key, currentDirection) &&
+          gameStarted) {
         currentDirection = event.key;
     } else if (event.key === 'space') {
         if (!gameStarted) {
