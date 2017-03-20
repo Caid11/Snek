@@ -23,6 +23,8 @@ var gameStarted = false;
 
 var inDeathScreen = false;
 
+var body = [{'xPos': 1, 'yPos': 1}];
+
 var score = 0;
 
 function setScoreText(newScore) {
@@ -41,6 +43,15 @@ function getFoodLocation() {
     var foodPoint = maxPoint * randomPoint;
     foodXPosition = Math.floor(foodPoint.x / scalingFactor);
     foodYPosition = Math.floor(foodPoint.y / scalingFactor);
+    // Check that the food hasn't spawned on any part of the snake. If it has,
+    // respawn the food.
+    for (var i = 0; i < body.length; i++) {
+        if (body[i].xPos === foodXPosition & body[i].yPos === foodYPosition) {
+            console.log('respawning food');
+            getFoodLocation();
+            return;
+        }
+    }
 }
 getFoodLocation();
 
@@ -93,8 +104,6 @@ function showDeathScreen(score) {
 
 }
 
-
-var body = [{'xPos': 1, 'yPos': 1}];
 
 function addBodySegment() {
     var newSegment = {'xPos': 0, 'yPos': 0};
