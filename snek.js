@@ -23,7 +23,7 @@ var gameStarted = false;
 
 var inDeathScreen = false;
 
-var body = [{'xPos': 1, 'yPos': 1}];
+var body = [{'xPos': 3, 'yPos': 1}, {'xPos': 2, 'yPos': 1}, {'xPos': 1, 'yPos': 1}];
 
 var score = 0;
 
@@ -223,9 +223,11 @@ function endGame() {
     currentDirection = 'right';
 
     // Reset the values for the snake and food.
-    body[0].xPos = 1;
-    body[0].yPos = 1;
-    body.splice(1);
+    for (var i = 0; i < 3; i++) {
+        body[i].xPos = 3 - i;
+        body[i].yPos = 1;
+    }
+    body.splice(3);
     getFoodLocation();
 
     // Display the title text.
