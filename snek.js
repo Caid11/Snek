@@ -37,6 +37,9 @@ function setScoreText(newScore) {
     scoreText.justification = 'right';
     scoreText.fillColor = '#d3dae5';
     scoreText.fontWeight = 'bold';
+    scoreText.shadowColor = '#000000';
+    scoreText.shadowBlur = 2;
+    scoreText.shadowOffset = new Point(0, 0);
     scoreText.content = newScore;
 }
 
