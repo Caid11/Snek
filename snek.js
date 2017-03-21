@@ -4,6 +4,9 @@ var scalingFactor = 25;
 // The current direction of travel for the snake.
 var currentDirection = 'right';
 
+// The direction the snake was traveling in at the beginning of the last time step.
+var lastDirection = 'right';
+
 // The game's "base speed"
 var baseSpeed = 250;
 
@@ -210,6 +213,9 @@ function gameLoop() {
 
     // Update the score.
     setScoreText(score);
+
+    // Update the snake's last direction.
+    lastDirection = currentDirection;
 }
 
 function endGame() {
@@ -255,7 +261,7 @@ function isOppositeDirection(newDirection, currentDirection) {
 tool.onKeyDown = function(event) {
     if ((event.key === 'up' || event.key === 'down' ||
           event.key === 'left' || event.key === 'right') &&
-          !isOppositeDirection(event.key, currentDirection) &&
+          !isOppositeDirection(event.key, lastDirection) &&
           gameStarted) {
         currentDirection = event.key;
     } else if (event.key === 'space') {
