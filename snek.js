@@ -8,11 +8,11 @@ var foodYPosition = null;
 var maxXPosition = view.size.width / 25;
 var maxYPosition = view.size.height / 25;
 
-var gameInterval = null;
-
-var gameStarted = false;
-
-var inDeathScreen = false;
+var game = {
+    score: 0,
+    gameStarted: false,
+    gameInterval: null
+}
 
 var snake = {
     currentDirection: 'right',
@@ -23,8 +23,6 @@ var snake = {
         {'xPos': 1, 'yPos': 1}
     ]
 }
-
-var score = 0;
 
 /**
  * Run through one step of the game loop.
@@ -53,11 +51,11 @@ function gameLoop() {
     if (snake.body[0].xPos === foodXPosition && snake.body[0].yPos === foodYPosition) {
         getFoodLocation();
         addBodySegment();
-        score++;
+        game.score++;
         if (baseSpeed > 100) {
-            clearInterval(gameInterval);
+            clearInterval(game.gameInterval);
             baseSpeed -= 10;
-            gameInterval = setInterval(gameLoop, baseSpeed);
+            game.gameInterval = setInterval(gameLoop, baseSpeed);
         }
     }
 
@@ -99,7 +97,7 @@ function gameLoop() {
     food.fillColor = '#d3dae5';
 
     // Update the score.
-    setScoreText(score);
+    setScoreText(game.score);
 
     // Update the snake's last direction.
     snake.currentDirection = snake.nextDirection;
@@ -225,7 +223,7 @@ function addBodySegment() {
 
 function endGame() {
     // Stop the execution of the game loop.
-    clearInterval(gameInterval);
+    clearInterval(game.gameInterval);
     baseSpeed = 250;
 
     // Clear the canvas.
@@ -243,11 +241,11 @@ function endGame() {
     getFoodLocation();
 
     // Display the title text.
-    showDeathScreen(score);
+    showDeathScreen(game.score);
 
-    score = 0;
+    game.score = 0;
 
-    gameStarted = false;
+    game.gameStarted = false;
 }
 
 var opposites = {
@@ -268,12 +266,12 @@ tool.onKeyDown = function(event) {
     if ((event.key === 'up' || event.key === 'down' ||
           event.key === 'left' || event.key === 'right') &&
           !isOppositeDirection(event.key, snake.currentDirection) &&
-          gameStarted) {
+          game.gameStarted) {
         snake.nextDirection = event.key;
     } else if (event.key === 'space') {
-        if (!gameStarted) {
-            gameInterval = setInterval(gameLoop, baseSpeed);
-            gameStarted = true;
+        if (!game.gameStarted) {
+            game.gameInterval = setInterval(gameLoop, baseSpeed);
+            game.gameStarted = true;
         }
     }
 }
