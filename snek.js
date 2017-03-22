@@ -1,34 +1,109 @@
-// Scaling factor for the game board
 var scalingFactor = 25;
 
-// The current direction of travel for the snake.
-var currentDirection = 'right';
-
-// The direction the snake was traveling in at the beginning of the last time step.
-var lastDirection = 'right';
-
-// The game's "base speed"
 var baseSpeed = 250;
 
-// The current location of the snake's food.
 var foodXPosition = null;
 var foodYPosition = null;
 
-// The top and right edges of the game board
 var maxXPosition = view.size.width / 25;
 var maxYPosition = view.size.height / 25;
 
-// The main loop for the game.
 var gameInterval = null;
 
-// Whether or not the game is currently running.
 var gameStarted = false;
 
 var inDeathScreen = false;
 
-var body = [{'xPos': 3, 'yPos': 1}, {'xPos': 2, 'yPos': 1}, {'xPos': 1, 'yPos': 1}];
+var snake = {
+    currentDirection: 'right',
+    nextDirection: 'right',
+    body: [
+        {'xPos': 3, 'yPos': 1},
+        {'xPos': 2, 'yPos': 1},
+        {'xPos': 1, 'yPos': 1}
+    ]
+}
 
 var score = 0;
+
+/**
+ * Run through one step of the game loop.
+ *
+ * Handle the snake's movement, food generation and depletion (i.e. getting eaten by
+ * the snake), and game board rendering.
+ */
+function gameLoop() {
+    // Clear the canvas.
+    project.clear();
+
+    // Move the "head" according to the current direction.
+    var prevHeadX = snake.body[0].xPos;
+    var prevHeadY = snake.body[0].yPos;
+    if (snake.nextDirection === 'right') {
+        snake.body[0].xPos += 1;
+    } else if (snake.nextDirection === 'left') {
+        snake.body[0].xPos -= 1;
+    } else if (snake.nextDirection === 'up') {
+        snake.body[0].yPos -= 1;
+    } else if (snake.nextDirection === 'down') {
+        snake.body[0].yPos += 1;
+    }
+
+    // Check if the player has eaten some food.
+    if (snake.body[0].xPos === foodXPosition && snake.body[0].yPos === foodYPosition) {
+        getFoodLocation();
+        addBodySegment();
+        score++;
+        if (baseSpeed > 100) {
+            clearInterval(gameInterval);
+            baseSpeed -= 10;
+            gameInterval = setInterval(gameLoop, baseSpeed);
+        }
+    }
+
+    // Make sure the player hasn't died.
+    if (snake.body[0].xPos >= maxXPosition || snake.body[0].yPos >= maxYPosition
+            || snake.body[0].xPos < 0 || snake.body[0].yPos < 0) {
+        endGame();
+        return;
+    }
+    for (var i = 1; i < snake.body.length; i++) {
+        if (snake.body[i].xPos === snake.body[0].xPos && snake.body[i].yPos === snake.body[0].yPos) {
+            endGame();
+            return;
+        }
+    }
+
+    // Draw the snake
+    for (var i = snake.body.length - 1; i > 1; i--) {
+        var newXPos = snake.body[i - 1].xPos;
+        var newYPos = snake.body[i - 1].yPos;
+        snake.body[i].xPos = newXPos;
+        snake.body[i].yPos = newYPos;
+        var rect = new Path.Rectangle(new Point(snake.body[i].xPos * scalingFactor, snake.body[i].yPos * scalingFactor), 25);
+        rect.fillColor = '#5faf60';
+    }
+    if (snake.body.length > 1) {
+        snake.body[1].xPos = prevHeadX;
+        snake.body[1].yPos = prevHeadY;
+        var rect = new Path.Rectangle(new Point(snake.body[1].xPos * scalingFactor, snake.body[1].yPos * scalingFactor), 25);
+        rect.fillColor = '#5faf60';
+
+    }
+
+    var rect = new Path.Rectangle(new Point(snake.body[0].xPos * scalingFactor, snake.body[0].yPos * scalingFactor), 25);
+    rect.fillColor = '#5faf60';
+
+    // Draw the current food.
+    var food = new Path.Rectangle(new Point(foodXPosition * scalingFactor, foodYPosition * scalingFactor), 25);
+    food.fillColor = '#d3dae5';
+
+    // Update the score.
+    setScoreText(score);
+
+    // Update the snake's last direction.
+    snake.currentDirection = snake.nextDirection;
+}
 
 function setScoreText(newScore) {
     var scorePoint = new Point(view.size.width - 14, 34);
@@ -51,8 +126,8 @@ function getFoodLocation() {
     foodYPosition = Math.floor(foodPoint.y / scalingFactor);
     // Check that the food hasn't spawned on any part of the snake. If it has,
     // respawn the food.
-    for (var i = 0; i < body.length; i++) {
-        if (body[i].xPos === foodXPosition & body[i].yPos === foodYPosition) {
+    for (var i = 0; i < snake.body.length; i++) {
+        if (snake.body[i].xPos === foodXPosition & snake.body[i].yPos === foodYPosition) {
             console.log('respawning food');
             getFoodLocation();
             return;
@@ -115,12 +190,12 @@ function addBodySegment() {
     var newSegment = {'xPos': 0, 'yPos': 0};
     var direction = null;
 
-    var lastSegment = body[body.length - 1];
+    var lastSegment = snake.body[snake.body.length - 1];
 
-    if (body.length === 1) {
-        direction = currentDirection;
+    if (snake.body.length === 1) {
+        direction = snake.nextDirection;
     } else {
-        var secondToLast = body[body.length - 2];
+        var secondToLast = snake.body[snake.body.length - 2];
 
         if (lastSegment.xPos < secondToLast.xPos) {
             direction = 'right';
@@ -145,80 +220,7 @@ function addBodySegment() {
         newSegment.xPos = lastSegment.xPos;
         newSegment.yPos = lastSegment.yPos + 1;
     }
-    body.push(newSegment);
-}
-
-function gameLoop() {
-    // Clear the canvas.
-    project.clear();
-
-    // Move the "head" according to the current direction.
-    var prevHeadX = body[0].xPos;
-    var prevHeadY = body[0].yPos;
-    if (currentDirection === 'right') {
-        body[0].xPos += 1;
-    } else if (currentDirection === 'left') {
-        body[0].xPos -= 1;
-    } else if (currentDirection === 'up') {
-        body[0].yPos -= 1;
-    } else if (currentDirection === 'down') {
-        body[0].yPos += 1;
-    }
-
-    // Check if the player has eaten some food.
-    if (body[0].xPos === foodXPosition && body[0].yPos === foodYPosition) {
-        getFoodLocation();
-        addBodySegment();
-        score++;
-        if (baseSpeed > 100) {
-            clearInterval(gameInterval);
-            baseSpeed -= 10;
-            gameInterval = setInterval(gameLoop, baseSpeed);
-        }
-    }
-
-    // Make sure the player hasn't died.
-    if (body[0].xPos >= maxXPosition || body[0].yPos >= maxYPosition
-            || body[0].xPos < 0 || body[0].yPos < 0) {
-        endGame();
-        return;
-    }
-    for (var i = 1; i < body.length; i++) {
-        if (body[i].xPos === body[0].xPos && body[i].yPos === body[0].yPos) {
-            endGame();
-            return;
-        }
-    }
-
-    // Draw the snake
-    for (var i = body.length - 1; i > 1; i--) {
-        var newXPos = body[i - 1].xPos;
-        var newYPos = body[i - 1].yPos;
-        body[i].xPos = newXPos;
-        body[i].yPos = newYPos;
-        var rect = new Path.Rectangle(new Point(body[i].xPos * scalingFactor, body[i].yPos * scalingFactor), 25);
-        rect.fillColor = '#5faf60';
-    }
-    if (body.length > 1) {
-        body[1].xPos = prevHeadX;
-        body[1].yPos = prevHeadY;
-        var rect = new Path.Rectangle(new Point(body[1].xPos * scalingFactor, body[1].yPos * scalingFactor), 25);
-        rect.fillColor = '#5faf60';
-
-    }
-
-    var rect = new Path.Rectangle(new Point(body[0].xPos * scalingFactor, body[0].yPos * scalingFactor), 25);
-    rect.fillColor = '#5faf60';
-
-    // Draw the current food.
-    var food = new Path.Rectangle(new Point(foodXPosition * scalingFactor, foodYPosition * scalingFactor), 25);
-    food.fillColor = '#d3dae5';
-
-    // Update the score.
-    setScoreText(score);
-
-    // Update the snake's last direction.
-    lastDirection = currentDirection;
+    snake.body.push(newSegment);
 }
 
 function endGame() {
@@ -229,14 +231,15 @@ function endGame() {
     // Clear the canvas.
     project.clear();
 
-    currentDirection = 'right';
+    snake.currentDirection = 'right';
+    snake.nextDirection = 'right';
 
     // Reset the values for the snake and food.
     for (var i = 0; i < 3; i++) {
-        body[i].xPos = 3 - i;
-        body[i].yPos = 1;
+        snake.body[i].xPos = 3 - i;
+        snake.body[i].yPos = 1;
     }
-    body.splice(3);
+    snake.body.splice(3);
     getFoodLocation();
 
     // Display the title text.
@@ -264,9 +267,9 @@ function isOppositeDirection(newDirection, currentDirection) {
 tool.onKeyDown = function(event) {
     if ((event.key === 'up' || event.key === 'down' ||
           event.key === 'left' || event.key === 'right') &&
-          !isOppositeDirection(event.key, lastDirection) &&
+          !isOppositeDirection(event.key, snake.currentDirection) &&
           gameStarted) {
-        currentDirection = event.key;
+        snake.nextDirection = event.key;
     } else if (event.key === 'space') {
         if (!gameStarted) {
             gameInterval = setInterval(gameLoop, baseSpeed);
