@@ -24,6 +24,11 @@ var snake = {
     ]
 }
 
+var food = {
+    xPos: null,
+    yPos: null
+}
+
 /**
  * Run through one step of the game loop.
  *
@@ -48,7 +53,7 @@ function gameLoop() {
     }
 
     // Check if the player has eaten some food.
-    if (snake.body[0].xPos === foodXPosition && snake.body[0].yPos === foodYPosition) {
+    if (snake.body[0].xPos === food.xPos && snake.body[0].yPos === food.yPos) {
         getFoodLocation();
         addBodySegment();
         game.score++;
@@ -93,8 +98,8 @@ function gameLoop() {
     rect.fillColor = '#5faf60';
 
     // Draw the current food.
-    var food = new Path.Rectangle(new Point(foodXPosition * scalingFactor, foodYPosition * scalingFactor), 25);
-    food.fillColor = '#d3dae5';
+    var foodSquare = new Path.Rectangle(new Point(food.xPos * scalingFactor, food.yPos * scalingFactor), 25);
+    foodSquare.fillColor = '#d3dae5';
 
     // Update the score.
     setScoreText(game.score);
@@ -120,12 +125,12 @@ function getFoodLocation() {
     var maxPoint = new Point(view.size.width, view.size.height);
     var randomPoint = Point.random();
     var foodPoint = maxPoint * randomPoint;
-    foodXPosition = Math.floor(foodPoint.x / scalingFactor);
-    foodYPosition = Math.floor(foodPoint.y / scalingFactor);
+    food.xPos = Math.floor(foodPoint.x / scalingFactor);
+    food.yPos = Math.floor(foodPoint.y / scalingFactor);
     // Check that the food hasn't spawned on any part of the snake. If it has,
     // respawn the food.
     for (var i = 0; i < snake.body.length; i++) {
-        if (snake.body[i].xPos === foodXPosition & snake.body[i].yPos === foodYPosition) {
+        if (snake.body[i].xPos === food.xPos & snake.body[i].yPos === food.yPos) {
             console.log('respawning food');
             getFoodLocation();
             return;
