@@ -1,10 +1,8 @@
-var scalingFactor = 25;
-
-var baseSpeed = 250;
-
 var game = {
     score: 0,
-    gameStarted: false,
+    squareSize: 25,
+    started: false,
+    speed: 250,
     gameInterval: null
 }
 
@@ -106,10 +104,10 @@ function isEatingFood(snake, food) {
  * Increase the game speed until it reaches 100ms between steps.
  */
 function increaseGameSpeed() {
-    if (baseSpeed > 100) {
+    if (game.speed > 100) {
         clearInterval(game.gameInterval);
-        baseSpeed -= 10;
-        game.gameInterval = setInterval(gameLoop, baseSpeed);
+        game.speed -= 10;
+        game.gameInterval = setInterval(gameLoop, game.speed);
     }
 }
 
@@ -136,7 +134,7 @@ function isSnakeDead() {
 function drawSnake() {
     // Draw the snake
     for (var i = 0; i < snake.body.length; i++) {
-        var rect = new Path.Rectangle(new Point(snake.body[i].xPos * scalingFactor, snake.body[i].yPos * scalingFactor), 25);
+        var rect = new Path.Rectangle(new Point(snake.body[i].xPos * game.squareSize, snake.body[i].yPos * game.squareSize), 25);
         rect.fillColor = '#5faf60';
     }
 }
@@ -145,7 +143,7 @@ function drawSnake() {
  * Draw the food.
  */
 function drawFood() {
-    var foodSquare = new Path.Rectangle(new Point(food.xPos * scalingFactor, food.yPos * scalingFactor), 25);
+    var foodSquare = new Path.Rectangle(new Point(food.xPos * game.squareSize, food.yPos * game.squareSize), 25);
     foodSquare.fillColor = '#d3dae5';
 }
 
@@ -166,8 +164,8 @@ function getFoodLocation() {
     var maxPoint = new Point(view.size.width, view.size.height);
     var randomPoint = Point.random();
     var foodPoint = maxPoint * randomPoint;
-    food.xPos = Math.floor(foodPoint.x / scalingFactor);
-    food.yPos = Math.floor(foodPoint.y / scalingFactor);
+    food.xPos = Math.floor(foodPoint.x / game.squareSize);
+    food.yPos = Math.floor(foodPoint.y / game.squareSize);
     // Check that the food hasn't spawned on any part of the snake. If it has,
     // respawn the food.
     for (var i = 0; i < snake.body.length; i++) {
@@ -270,7 +268,7 @@ function addBodySegment() {
 function endGame() {
     // Stop the execution of the game loop.
     clearInterval(game.gameInterval);
-    baseSpeed = 250;
+    game.speed = 250;
 
     // Clear the canvas.
     project.clear();
@@ -291,7 +289,7 @@ function endGame() {
 
     game.score = 0;
 
-    game.gameStarted = false;
+    game.started = false;
 }
 
 var opposites = {
@@ -312,12 +310,12 @@ tool.onKeyDown = function(event) {
     if ((event.key === 'up' || event.key === 'down' ||
           event.key === 'left' || event.key === 'right') &&
           !isOppositeDirection(event.key, snake.currentDirection) &&
-          game.gameStarted) {
+          game.started) {
         snake.nextDirection = event.key;
     } else if (event.key === 'space') {
-        if (!game.gameStarted) {
-            game.gameInterval = setInterval(gameLoop, baseSpeed);
-            game.gameStarted = true;
+        if (!game.started) {
+            game.gameInterval = setInterval(gameLoop, game.speed);
+            game.started = true;
         }
     }
 }
