@@ -54,7 +54,7 @@ function gameLoop() {
     drawFood();
 
     // Update the score.
-    setScoreText(game.score);
+    showScore(game.score);
 
     // Update the snake's last direction.
     snake.currentDirection = snake.nextDirection;
@@ -175,7 +175,11 @@ function drawFood() {
     foodSquare.fillColor = '#d3dae5';
 }
 
-function setScoreText(newScore) {
+/**
+ * Set the score indicator to the specified score.
+ * @param {number} newScore The score to show in the indicator.
+ */
+function showScore(newScore) {
     var scorePoint = new Point(view.size.width - 14, 34);
     var scoreText = new PointText(scorePoint);
     scoreText.fontSize = 24;
@@ -188,6 +192,9 @@ function setScoreText(newScore) {
     scoreText.content = newScore;
 }
 
+/**
+ * Generate a new set of coordinates for the food.
+ */
 function getFoodLocation() {
     var maxPoint = new Point(view.size.width, view.size.height);
     var randomPoint = Point.random();
@@ -204,8 +211,10 @@ function getFoodLocation() {
         }
     }
 }
-getFoodLocation();
 
+/**
+ * Show the game's title text.
+ */
 function showTitleText() {
     var midPoint = new Point(view.size.width / 2, view.size.height / 2);
     var titleText = new PointText(midPoint);
@@ -225,8 +234,11 @@ function showTitleText() {
     instructionText.content = 'Press space to play';
     instructionText.fillColor = '#d3dae5';
 }
-showTitleText();
 
+/**
+ * Show the death screen with the player's final score.
+ * @param {number} score the player's final score.
+ */
 function showDeathScreen(score) {
     var midPoint = new Point(view.size.width / 2, view.size.height / 2);
     var mainText = new PointText(midPoint);
@@ -255,6 +267,9 @@ function showDeathScreen(score) {
 
 }
 
+/**
+ * Show the death screen and reset the game board.
+ */
 function endGame() {
     // Stop the execution of the game loop.
     clearInterval(game.gameInterval);
@@ -309,3 +324,8 @@ tool.onKeyDown = function(event) {
         }
     }
 }
+
+// Set the initial value for the food position.
+getFoodLocation();
+// Show the title screen.
+showTitleText();
