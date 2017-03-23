@@ -65,9 +65,15 @@ function gameLoop() {
  * @param {snake} snake The snake to move
  */
 function moveSnake(snake) {
-    // Move the "head" according to the current direction.
-    var prevHeadX = snake.body[0].xPos;
-    var prevHeadY = snake.body[0].yPos;
+    // Move the snake's body
+    for (var i = snake.body.length - 1; i > 0; i--) {
+        var newXPos = snake.body[i - 1].xPos;
+        var newYPos = snake.body[i - 1].yPos;
+        snake.body[i].xPos = newXPos;
+        snake.body[i].yPos = newYPos;
+    }
+
+    // Move the snake's head
     if (snake.nextDirection === 'right') {
         snake.body[0].xPos += 1;
     } else if (snake.nextDirection === 'left') {
@@ -76,18 +82,6 @@ function moveSnake(snake) {
         snake.body[0].yPos -= 1;
     } else if (snake.nextDirection === 'down') {
         snake.body[0].yPos += 1;
-    }
-
-    // Move the rest of the snake.
-    for (var i = snake.body.length - 1; i > 1; i--) {
-        var newXPos = snake.body[i - 1].xPos;
-        var newYPos = snake.body[i - 1].yPos;
-        snake.body[i].xPos = newXPos;
-        snake.body[i].yPos = newYPos;
-    }
-    if (snake.body.length > 1) {
-        snake.body[1].xPos = prevHeadX;
-        snake.body[1].yPos = prevHeadY;
     }
 }
 
