@@ -40,39 +40,20 @@ function gameLoop() {
     moveSnake(snake);
 
     // Check if the player has eaten some food.
-    if (snake.body[0].xPos === food.xPos && snake.body[0].yPos === food.yPos) {
+    if (isEatingFood(snake, food)) {
         getFoodLocation();
         addBodySegment();
         game.score++;
-        if (baseSpeed > 100) {
-            clearInterval(game.gameInterval);
-            baseSpeed -= 10;
-            game.gameInterval = setInterval(gameLoop, baseSpeed);
-        }
+        increaseGameSpeed();
     }
 
-    // Make sure the player hasn't died.
-    if (snake.body[0].xPos >= MAX_X_POSITION || snake.body[0].yPos >= MAX_Y_POSITION
-            || snake.body[0].xPos < 0 || snake.body[0].yPos < 0) {
+    if (isSnakeDead()) {
         endGame();
         return;
     }
-    for (var i = 1; i < snake.body.length; i++) {
-        if (snake.body[i].xPos === snake.body[0].xPos && snake.body[i].yPos === snake.body[0].yPos) {
-            endGame();
-            return;
-        }
-    }
 
-    // Draw the snake
-    for (var i = 0; i < snake.body.length; i++) {
-        var rect = new Path.Rectangle(new Point(snake.body[i].xPos * scalingFactor, snake.body[i].yPos * scalingFactor), 25);
-        rect.fillColor = '#5faf60';
-    }
-
-    // Draw the current food.
-    var foodSquare = new Path.Rectangle(new Point(food.xPos * scalingFactor, food.yPos * scalingFactor), 25);
-    foodSquare.fillColor = '#d3dae5';
+    drawSnake();
+    drawFood();
 
     // Update the score.
     setScoreText(game.score);
@@ -110,6 +91,62 @@ function moveSnake(snake) {
         snake.body[1].xPos = prevHeadX;
         snake.body[1].yPos = prevHeadY;
     }
+}
+
+/**
+ * Determine whether or not the snake is currently eating food.
+ * @param {snake} snake
+ * @param {food} food
+ */
+function isEatingFood(snake, food) {
+    return snake.body[0].xPos === food.xPos && snake.body[0].yPos === food.yPos;
+}
+
+/**
+ * Increase the game speed until it reaches 100ms between steps.
+ */
+function increaseGameSpeed() {
+    if (baseSpeed > 100) {
+        clearInterval(game.gameInterval);
+        baseSpeed -= 10;
+        game.gameInterval = setInterval(gameLoop, baseSpeed);
+    }
+}
+
+/**
+ * Check if the snake has hit the boundaries or itself.
+ */
+function isSnakeDead() {
+    // Make sure the player hasn't died.
+    if (snake.body[0].xPos >= MAX_X_POSITION || snake.body[0].yPos >= MAX_Y_POSITION
+            || snake.body[0].xPos < 0 || snake.body[0].yPos < 0) {
+        return true;
+    }
+    for (var i = 1; i < snake.body.length; i++) {
+        if (snake.body[i].xPos === snake.body[0].xPos && snake.body[i].yPos === snake.body[0].yPos) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Draw the snake.
+ */
+function drawSnake() {
+    // Draw the snake
+    for (var i = 0; i < snake.body.length; i++) {
+        var rect = new Path.Rectangle(new Point(snake.body[i].xPos * scalingFactor, snake.body[i].yPos * scalingFactor), 25);
+        rect.fillColor = '#5faf60';
+    }
+}
+
+/**
+ * Draw the food.
+ */
+function drawFood() {
+    var foodSquare = new Path.Rectangle(new Point(food.xPos * scalingFactor, food.yPos * scalingFactor), 25);
+    foodSquare.fillColor = '#d3dae5';
 }
 
 function setScoreText(newScore) {
