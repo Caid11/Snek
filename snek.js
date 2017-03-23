@@ -2,12 +2,6 @@ var scalingFactor = 25;
 
 var baseSpeed = 250;
 
-var foodXPosition = null;
-var foodYPosition = null;
-
-var maxXPosition = view.size.width / 25;
-var maxYPosition = view.size.height / 25;
-
 var game = {
     score: 0,
     gameStarted: false,
@@ -29,6 +23,10 @@ var food = {
     yPos: null
 }
 
+// The maximum X and Y positions the snake can reach before it is out-of-bounds.
+var MAX_X_POSITION = view.size.width / 25;
+var MAX_Y_POSITION = view.size.height / 25;
+
 /**
  * Run through one step of the game loop.
  *
@@ -39,18 +37,7 @@ function gameLoop() {
     // Clear the canvas.
     project.clear();
 
-    // Move the "head" according to the current direction.
-    var prevHeadX = snake.body[0].xPos;
-    var prevHeadY = snake.body[0].yPos;
-    if (snake.nextDirection === 'right') {
-        snake.body[0].xPos += 1;
-    } else if (snake.nextDirection === 'left') {
-        snake.body[0].xPos -= 1;
-    } else if (snake.nextDirection === 'up') {
-        snake.body[0].yPos -= 1;
-    } else if (snake.nextDirection === 'down') {
-        snake.body[0].yPos += 1;
-    }
+    moveSnake(snake);
 
     // Check if the player has eaten some food.
     if (snake.body[0].xPos === food.xPos && snake.body[0].yPos === food.yPos) {
@@ -65,7 +52,7 @@ function gameLoop() {
     }
 
     // Make sure the player hasn't died.
-    if (snake.body[0].xPos >= maxXPosition || snake.body[0].yPos >= maxYPosition
+    if (snake.body[0].xPos >= MAX_X_POSITION || snake.body[0].yPos >= MAX_Y_POSITION
             || snake.body[0].xPos < 0 || snake.body[0].yPos < 0) {
         endGame();
         return;
@@ -78,24 +65,10 @@ function gameLoop() {
     }
 
     // Draw the snake
-    for (var i = snake.body.length - 1; i > 1; i--) {
-        var newXPos = snake.body[i - 1].xPos;
-        var newYPos = snake.body[i - 1].yPos;
-        snake.body[i].xPos = newXPos;
-        snake.body[i].yPos = newYPos;
+    for (var i = 0; i < snake.body.length; i++) {
         var rect = new Path.Rectangle(new Point(snake.body[i].xPos * scalingFactor, snake.body[i].yPos * scalingFactor), 25);
         rect.fillColor = '#5faf60';
     }
-    if (snake.body.length > 1) {
-        snake.body[1].xPos = prevHeadX;
-        snake.body[1].yPos = prevHeadY;
-        var rect = new Path.Rectangle(new Point(snake.body[1].xPos * scalingFactor, snake.body[1].yPos * scalingFactor), 25);
-        rect.fillColor = '#5faf60';
-
-    }
-
-    var rect = new Path.Rectangle(new Point(snake.body[0].xPos * scalingFactor, snake.body[0].yPos * scalingFactor), 25);
-    rect.fillColor = '#5faf60';
 
     // Draw the current food.
     var foodSquare = new Path.Rectangle(new Point(food.xPos * scalingFactor, food.yPos * scalingFactor), 25);
@@ -106,6 +79,37 @@ function gameLoop() {
 
     // Update the snake's last direction.
     snake.currentDirection = snake.nextDirection;
+}
+
+/**
+ * Move the specified snake.
+ * @param {snake} snake The snake to move
+ */
+function moveSnake(snake) {
+    // Move the "head" according to the current direction.
+    var prevHeadX = snake.body[0].xPos;
+    var prevHeadY = snake.body[0].yPos;
+    if (snake.nextDirection === 'right') {
+        snake.body[0].xPos += 1;
+    } else if (snake.nextDirection === 'left') {
+        snake.body[0].xPos -= 1;
+    } else if (snake.nextDirection === 'up') {
+        snake.body[0].yPos -= 1;
+    } else if (snake.nextDirection === 'down') {
+        snake.body[0].yPos += 1;
+    }
+
+    // Move the rest of the snake.
+    for (var i = snake.body.length - 1; i > 1; i--) {
+        var newXPos = snake.body[i - 1].xPos;
+        var newYPos = snake.body[i - 1].yPos;
+        snake.body[i].xPos = newXPos;
+        snake.body[i].yPos = newYPos;
+    }
+    if (snake.body.length > 1) {
+        snake.body[1].xPos = prevHeadX;
+        snake.body[1].yPos = prevHeadY;
+    }
 }
 
 function setScoreText(newScore) {
