@@ -74,15 +74,49 @@ function moveSnake(snake) {
     }
 
     // Move the snake's head
-    if (snake.nextDirection === 'right') {
-        snake.body[0].xPos += 1;
-    } else if (snake.nextDirection === 'left') {
-        snake.body[0].xPos -= 1;
-    } else if (snake.nextDirection === 'up') {
-        snake.body[0].yPos -= 1;
-    } else if (snake.nextDirection === 'down') {
-        snake.body[0].yPos += 1;
+    var newHeadPosition = getAdjacentPoint(snake.body[0], snake.nextDirection);
+    snake.body[0] = newHeadPosition;
+}
+
+/**
+ * Add a segment to the body of the snake.
+ */
+function addBodySegment() {
+    var lastSegment = snake.body[snake.body.length - 1];
+    var secondToLast = snake.body[snake.body.length - 2];
+
+    var direction = null;
+    if (lastSegment.xPos < secondToLast.xPos) {
+        direction = 'right';
+    } else if (lastSegment.xPos > secondToLast.xPos) {
+        direction = 'left';
+    } else if (lastSegment.yPos > secondToLast.yPos) {
+        direction = 'up';
+    } else {
+        direction = 'down';
     }
+
+    var newSegment = getAdjacentPoint(secondToLast, opposites[direction]);
+    snake.body.push(newSegment);
+}
+
+/**
+ * Return the point adjacent to the given point in the specified direction.
+ * @param {object} point the point to make the new point adjacent to
+ * @param {object} direction the direction in which to place the adjacent point
+ */
+function getAdjacentPoint(point, direction) {
+    var adjPoint = {xPos: point.xPos, yPos: point.yPos};
+    if (direction === 'right') {
+        adjPoint.xPos += 1;
+    } else if (direction === 'left') {
+        adjPoint.xPos -= 1;
+    } else if (direction === 'up') {
+        adjPoint.yPos -= 1;
+    } else if (direction === 'down') {
+        adjPoint.yPos += 1;
+    }
+    return adjPoint;
 }
 
 /**
@@ -219,44 +253,6 @@ function showDeathScreen(score) {
         subText.fontSize -= 10;
     }
 
-}
-
-
-function addBodySegment() {
-    var newSegment = {'xPos': 0, 'yPos': 0};
-    var direction = null;
-
-    var lastSegment = snake.body[snake.body.length - 1];
-
-    if (snake.body.length === 1) {
-        direction = snake.nextDirection;
-    } else {
-        var secondToLast = snake.body[snake.body.length - 2];
-
-        if (lastSegment.xPos < secondToLast.xPos) {
-            direction = 'right';
-        } else if (lastSegment.xPos > secondToLast.xPos) {
-            direction = 'left';
-        } else if (lastSegment.yPos > secondToLast.yPos) {
-            direction = 'up';
-        } else {
-            direction = 'down';
-        }
-    }
-    if (direction === 'right') {
-        newSegment.xPos = lastSegment.xPos - 1;
-        newSegment.yPos = lastSegment.yPos;
-    } else if (direction === 'left') {
-        newSegment.xPos = lastSegment.xPos + 1;
-        newSegment.yPos = lastSegment.yPos;
-    } else if (direction === 'up') {
-        newSegment.xPos = lastSegment.xPos;
-        newSegment.yPos = lastSegment.yPos - 1;
-    } else if (direction === 'down') {
-        newSegment.xPos = lastSegment.xPos;
-        newSegment.yPos = lastSegment.yPos + 1;
-    }
-    snake.body.push(newSegment);
 }
 
 function endGame() {
